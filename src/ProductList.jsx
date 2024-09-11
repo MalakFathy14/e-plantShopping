@@ -1,9 +1,17 @@
 import React, { useState,useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+import { useDispatch, useSelector} from 'react-redux';
+import { addItem, updateQuantity, removeItem } from './CartSlice'; // the libraries to be imported
+
+
+
 function ProductList() {
+    const dispatch = useDispatch();
+    const items = useSelector((state) =>state.cart); // the items that are in the cart {name, image, cost, quantity, etc}
     const [showCart, setShowCart] = useState(false); 
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+    const [addedToCart, setaddedToCart] = useState({});
 
     const plantsArray = [
         {
@@ -232,6 +240,8 @@ function ProductList() {
     fontSize: '30px',
     textDecoration: 'none',
    }
+
+
    const handleCartClick = (e) => {
     e.preventDefault();
     setShowCart(true); // Set showCart to true when cart icon is clicked
@@ -242,10 +252,19 @@ const handlePlantsClick = (e) => {
     setShowCart(false); // Hide the cart when navigating to About Us
 };
 
-   const handleContinueShopping = (e) => {
+const handleContinueShopping = (e) => {
     e.preventDefault();
     setShowCart(false);
   };
+
+const handleAddToCart = (plant) =>{
+    dispatch(addItem(plant))
+    setaddedToCart((prevState) =>({
+        ...prevState, [plant.name]:true,
+    }))
+}
+
+
     return (
         <div>
              <div className="navbar" style={styleObj}>
@@ -268,11 +287,35 @@ const handlePlantsClick = (e) => {
         </div>
         {!showCart? (
         <div className="product-grid">
+            <ul>
+                {
+                    plantsArray.map((category, index)=>(
+                        <div key={index}>
+                         <h1>{category.category}</h1>
 
+                         <div className='product-list'>
+                            {category.plants.map((plant, p_index)=>(
+                                <div className='product-card' key={p_index}>
+                                        <img src={plant.image} className='product-image' alt='plant.name'/>
+                                        <div className='product-title'> {plant.name} </div>
+                                        <button className='product-button' onClick={()=>{handleAddToCart(plant)}}>Add to Cart</button>
+                                </div>
+                            )
+                            )}
+                         </div>
+                        
+                        
+                        
+                        
+                        </div>
+                    ))
+                }
+
+            </ul>
 
         </div>
  ) :  (
-    <CartItem onContinueShopping={handleContinueShopping}/>
+    <CartItem onContinueShopping={handleContinueShopping}/> //this function is passed as prop to the CartItem component ~ Judy
 )}
     </div>
     );
